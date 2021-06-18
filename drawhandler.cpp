@@ -5,27 +5,25 @@ void rotateX(Point* point, float angle);
 void rotateY(Point* point, float angle);
 void rotateZ(Point* point, float angle);
 
-Point** createPointMatrix(int rows, int cols){
-    Point** matrix = new Point* [rows];
-    for (int i = 0; i < rows; i++){
-        matrix[i] = new Point[cols];
+Point** create_matrix(int size){
+    Point** matrix = new Point* [size];
+    for (int i = 0; i < size; ++i){
+        matrix[i] = new Point[size];
     }
     return matrix;
 }
 
-void freePointMatrix(Point** matrix, int rows){
+void free_points(Point** matrix, int rows){
     /* Очистить матрицу */
     if (matrix != nullptr){
-
-    for (int i = 0; i < rows; i++){
-        delete [] matrix[i];
-    }
-
+        for (int i = 0; i < rows; i++){
+            delete [] matrix[i];
+        }
     delete matrix;
     }
 }
 
-void setPoint(Point* point, float x, float y, float z){
+void set_point(Point* point, float x, float y, float z){
     point->x = x;
     point->y = y;
     point->z = z;
@@ -37,7 +35,7 @@ void normalize(Point** points, int rows, int cols, float* normalization){
     float *valuesY = new float[size];
     float *valuesZ = new float[size];
 
-    getValues(points, valuesX, valuesY, valuesZ, rows, cols); // Достаем текущие точки из общей Data
+    get_values(points, valuesX, valuesY, valuesZ, rows, cols); // Достаем текущие точки из общей Data
 
     float minX = findMin(valuesX, size), maxX = findMax(valuesX, size);
     float minY = findMin(valuesY, size), maxY = findMax(valuesY, size);
@@ -119,7 +117,7 @@ void offset(Point** points, int rows, int cols, Axis axis, float offset){
     }
 }
 
-void getValues(Point** points, float* x, float* y, float* z, int rows, int cols){
+void get_values(Point** points, float* x, float* y, float* z, int rows, int cols){
     int inx = 0;
     for (int i = 0; i < rows; i++){
         for (int j = 0; j < cols; j++){
@@ -131,7 +129,7 @@ void getValues(Point** points, float* x, float* y, float* z, int rows, int cols)
     }
 }
 
-void projectLines(Point** points, Line* lines, int rows, int cols){
+void create_lines(Point** points, Line* lines, int rows, int cols){
     /* Просчет линий, связывающих точек */
     int inx = 0;
     for (int i = 0; i < rows; i++){

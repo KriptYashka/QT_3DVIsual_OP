@@ -3,60 +3,58 @@
 #include "drawhandler.h"
 #include "metrichandler.h"
 
-int matsize = 20;
-
 void splitString(string input, string* output);
 void setPoints(Point** points, int rows, int cols);
 
-vector<string> *loadedData;
+vector<string> *csv_data;
 
-bool loaded = false, drawed = false;
-bool matrixCreated = false;
+bool is_loaded = false, is_drawed = false, is_created = false;
+int matsize = -1;
 
 Point** points;
 Line* lines;
 
-float normalization[2] = {50, 400};
+float normalization[2] = {50, 400}; // Стандартная нормализация
 
 Response* execute(Request* request)
 {
     Response* response = new Response;
 
     switch (request->operation){
-        case Operations::LOAD_DATA:
+        case Operations::READ_FILE:
         /* Загрузка данных из файла */
-            if (loaded){
-                loadedData->clear();
+            if (is_loaded){
+                csv_data->clear();
             }
-
-            loadedData = loadData(request->fileName);
-            loaded = loadedData->size() != 0;
-            matsize = loadedData->size();
-            lines = new Line[(matsize - 1) * matsize * 2];
-            if (!loaded){
+            csv_data = load_csv_file(request->path);
+            is_loaded = csv_data->size() != 0;
+            if (!is_loaded){
                 response->done = false;
                 response->message = "Не удалось загрузить данные";
+            } else {
+                matsize = csv_data->size();
+                lines = new Line[(matsize - 1) * matsize * 2];
             }
             break;
 
         case Operations::CLEAR:
         /* Удаление матрицы */
-            freePointMatrix(points, matsize);
+            free_points(points, matsize);
             delete [] lines;
             break;
 
         case Operations::DRAW:
         /* Отрисовка точек */
-            if (loaded){
-                if (matrixCreated)  // Очищение поля для отрисовки, если матрица уже создана
-                    freePointMatrix(points, matsize);
+            if (is_loaded){
+                if (is_created)  // Очищение поля для отрисовки, если матрица уже создана
+                    free_points(points, matsize);
 
-                points = createPointMatrix(matsize, matsize);
-                matrixCreated = true;
+                points = create_matrix(matsize);
+                is_created = true;
 
                 setPoints(points, matsize, matsize);
                 normalize(points, matsize, matsize, normalization);
-                projectLines(points, lines, matsize, matsize);
+                create_lines(points, lines, matsize, matsize);
 
                 response->lines = lines;
             } else {
@@ -67,10 +65,10 @@ Response* execute(Request* request)
 
         case Operations::ROTATE:
         /* Поворот точек по одной из осей */
-            if (loaded){
-                rotate(points, matsize, matsize, request->axis, request->rotationAngle);
+            if (is_loaded){
+                rotate(points, matsize, matsize, request->axis, request->rotation_angle);
                 normalize(points, matsize, matsize, normalization);
-                projectLines(points, lines, matsize, matsize);
+                create_lines(points, lines, matsize, matsize);
 
                 response->lines = lines;
             } else {
@@ -79,11 +77,11 @@ Response* execute(Request* request)
             }
             break;
 
-        case Operations::OFFSET:
+        case Operations::MOVE:
         /* Перемещение по поверхности */
-            if (loaded){
-                offset(points, matsize, matsize, request->axis, request->offsetValue);
-                projectLines(points, lines, matsize, matsize);
+            if (is_loaded){
+                offset(points, matsize, matsize, request->axis, request->offset_value);
+                create_lines(points, lines, matsize, matsize);
 
                 response->lines = lines;
             } else {
@@ -97,9 +95,9 @@ Response* execute(Request* request)
             normalization[0] = request->normalization[0];
             normalization[1] = request->normalization[1];
 
-            if (loaded){
+            if (is_loaded){
                 normalize(points, matsize, matsize, normalization);
-                projectLines(points, lines, matsize, matsize);
+                create_lines(points, lines, matsize, matsize);
 
                 response->lines = lines;
             } else {
@@ -109,7 +107,7 @@ Response* execute(Request* request)
             break;
     }
 
-    response->lineCount = (matsize - 1) * matsize * 2;
+    response->line_count = (matsize - 1) * matsize * 2;
     return response;
 }
 
@@ -132,11 +130,11 @@ void setPoints(Point** points, int rows, int cols){
     string arr[matsize];
 
     for (int i = 0; i < rows; i++){
-        splitString((*loadedData)[i], arr);
+        splitString((*csv_data)[i], arr);
 
         for (int j = 0; j < cols; j++){
             Point point;
-            setPoint(&point, (float)i, (float)j, (float)atof(arr[j].c_str()));
+            set_point(&point, (float)i, (float)j, (float)atof(arr[j].c_str()));
 
             points[i][j] = point;
         }

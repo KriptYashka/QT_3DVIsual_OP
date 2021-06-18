@@ -10,29 +10,32 @@
 using namespace std;
 
 enum Operations{
-    LOAD_DATA,
+    READ_FILE,
     DRAW,
     ROTATE,
-    OFFSET,
+    MOVE,
     NORMALIZE,
     CLEAR
 };
 
 struct Request{
     int operation;
-    string fileName;
+    string path;
     Axis axis;
-    float rotationAngle;
-    float offsetValue;
+    float rotation_angle;
+    float offset_value;
     float normalization[2];
 };
 
 struct Response{
     bool done = true;
     string message;
-    int lineCount;
+    int line_count;
     Line* lines;
 };
+
+/* Глобальные переменные */
+
 
 Response* execute(Request* request);
 

@@ -2,15 +2,11 @@
 #include "ui_mainwindow.h"
 #include "logic.h"
 
-MainWindow::MainWindow(QWidget *parent)
-    : QMainWindow(parent)
-    , ui(new Ui::MainWindow)
-{
+MainWindow::MainWindow(QWidget *parent): QMainWindow(parent), ui(new Ui::MainWindow){
     ui->setupUi(this);
 }
 
-MainWindow::~MainWindow()
-{
+MainWindow::~MainWindow(){
     delete ui;
     delete pix;
 
@@ -25,15 +21,17 @@ MainWindow::~MainWindow()
 
 void MainWindow::on_fileDialog_btn_clicked(){
     /* Запись пути к файлу */
-    fileName = QFileDialog::getOpenFileName(this, "Выберите файл", QDir::currentPath());
+    //fileName = QFileDialog::getOpenFileName(this, "Выберите файл", QDir::currentPath());
+    fileName = "schools_exams.csv";
     ui->fileName_label->setText(fileName);
+
 }
 
 void MainWindow::on_fileLoad_btn_clicked(){
     /* Считывание файла и сохранение в LoadData в logic */
     Request* request = new Request;
-    request->operation = Operations::LOAD_DATA;
-    request->fileName = fileName.toStdString();
+    request->operation = Operations::READ_FILE;
+    request->path = fileName.toStdString();
 
 
     Request* request_2 = new Request;
@@ -65,7 +63,7 @@ void MainWindow::on_draw_btn_clicked(){
         return;
     }
 
-    drawSurface(response->lines, response->lineCount);
+    drawSurface(response->lines, response->line_count);
 
     delete request;
     delete response;
@@ -121,7 +119,7 @@ void MainWindow::on_normalization_btn_clicked(){
         return;
     }
 
-    drawSurface(response->lines, response->lineCount);
+    drawSurface(response->lines, response->line_count);
 
     delete request;
     delete response;
@@ -158,17 +156,17 @@ void MainWindow::rotationHandler(Axis axis, int direction){
 
     switch (axis){
         case Axis::X:
-            request->rotationAngle = atof(ui->rotation_x->toPlainText().toStdString().c_str());;
+            request->rotation_angle = atof(ui->rotation_x->toPlainText().toStdString().c_str());;
             break;
         case Axis::Y:
-            request->rotationAngle = atof(ui->rotation_y->toPlainText().toStdString().c_str());;
+            request->rotation_angle = atof(ui->rotation_y->toPlainText().toStdString().c_str());;
             break;
         case Axis::Z:
-            request->rotationAngle = atof(ui->rotation_z->toPlainText().toStdString().c_str());;
+            request->rotation_angle = atof(ui->rotation_z->toPlainText().toStdString().c_str());;
             break;
     }
 
-    request->rotationAngle *= direction;
+    request->rotation_angle *= direction;
 
     Response* response = execute(request);
 
@@ -177,7 +175,7 @@ void MainWindow::rotationHandler(Axis axis, int direction){
         return;
     }
 
-    drawSurface(response->lines, response->lineCount);
+    drawSurface(response->lines, response->line_count);
 
     delete request;
     delete response;
@@ -186,18 +184,18 @@ void MainWindow::rotationHandler(Axis axis, int direction){
 void MainWindow::offsetHandler(Axis axis){
     Request* request = new Request;
 
-    request->operation = Operations::OFFSET;
+    request->operation = Operations::MOVE;
     request->axis = axis;
 
     switch (axis){
         case Axis::X:
-            request->offsetValue = atof(ui->offset_x->toPlainText().toStdString().c_str());;
+            request->offset_value = atof(ui->offset_x->toPlainText().toStdString().c_str());;
             break;
         case Axis::Y:
-            request->offsetValue = atof(ui->offset_y->toPlainText().toStdString().c_str());;
+            request->offset_value = atof(ui->offset_y->toPlainText().toStdString().c_str());;
             break;
         case Axis::Z:
-            request->offsetValue = atof(ui->offset_z->toPlainText().toStdString().c_str());;
+            request->offset_value = atof(ui->offset_z->toPlainText().toStdString().c_str());;
             break;
     }
 
@@ -208,7 +206,7 @@ void MainWindow::offsetHandler(Axis axis){
         return;
     }
 
-    drawSurface(response->lines, response->lineCount);
+    drawSurface(response->lines, response->line_count);
 
     delete request;
     delete response;

@@ -15,8 +15,8 @@ struct Point2D{
 };
 
 struct Line{
-    Point2D start;
-    Point2D end;
+    Point2D point_first;
+    Point2D point_second;
 };
 
 enum Axis{
@@ -26,17 +26,12 @@ enum Axis{
 };
 
 void normalize(Point** points, int rows, int cols, float* normalization);
-
 void rotate(Point** points, int rows, int cols, Axis axis, float angle);
-
 void offset(Point** points, int rows, int cols, Axis axis, float offset);
-
-Point** createPointMatrix(int rows, int cols);
-void freePointMatrix(Point** matrix, int rows);
-
-void setPoint(Point* point, float x, float y, float z);
-
-void getValues(Point** points, float* x, float* y, float* z, int rows, int cols);
-void projectLines(Point** points, Line* lines, int rows, int cols);
+Point** create_matrix(int size);
+void free_points(Point** matrix, int rows);
+void set_point(Point* point, float x, float y, float z);
+void get_values(Point** points, float* x, float* y, float* z, int rows, int cols);
+void create_lines(Point** points, Line* lines, int rows, int cols);
 
 #endif // DRAWHANDLER_H

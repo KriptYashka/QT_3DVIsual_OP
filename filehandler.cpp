@@ -2,24 +2,18 @@
 
 using namespace std;
 
-vector<string>* loadData(string path)
+vector<string>* load_csv_file(string path)
 {
     ifstream file;
     file.open(path);
-
-    vector<string>* filedata = new vector<string>;
-
+    vector<string>* data = new vector<string>;
     string str;
-
     if (file){
-        filedata->reserve(20);
-        while (getline(file,  str)){
-            filedata->push_back(str);
+        while (getline(file, str)){
+            data->push_back(str);
         }
     }
-
     file.close();
-    filedata->shrink_to_fit();
-
-    return filedata;
+    data->shrink_to_fit();
+    return data;
 }

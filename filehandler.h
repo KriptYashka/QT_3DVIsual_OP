@@ -6,6 +6,6 @@
 #include <string>
 
 using namespace std;
-vector<string>* loadData(string path);
+vector<string>* load_csv_file(string path);
 
 #endif // FILEHANDLER_H
