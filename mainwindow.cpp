@@ -29,26 +29,25 @@ void MainWindow::on_fileDialog_btn_clicked(){
 
 void MainWindow::on_fileLoad_btn_clicked(){
     /* Считывание файла и сохранение в LoadData в logic */
-    Request* request = new Request;
-    request->operation = Operations::READ_FILE;
-    request->path = fileName.toStdString();
+    Request* request_readfile = new Request;
+    request_readfile->operation = Operations::READ_FILE;
+    request_readfile->path = fileName.toStdString();
 
 
-    Request* request_2 = new Request;
-    request_2->operation = Operations::CLEAR;
-    Response* response = execute(request_2);
-    Response* response_2 = execute(request);
+    Request* request_clear = new Request;
+    request_clear->operation = Operations::CLEAR;
+
+    Response* response_clear = execute(request_clear);
+    Response* response_readfile = execute(request_readfile);
 
 
-    if (!response->done){
-        show_error(response->message);
-        return;
+    if (!response_clear->done){
+        show_error(response_clear->message);
     }
-
-    delete request;
-    delete response;
-    delete request_2;
-    delete response_2;
+    delete request_readfile;
+    delete response_clear;
+    delete request_clear;
+    delete response_readfile;
 }
 
 void MainWindow::on_draw_btn_clicked(){
@@ -60,11 +59,9 @@ void MainWindow::on_draw_btn_clicked(){
 
     if (!response->done){
         show_error(response->message);
-        return;
+    } else {
+        draw_surface(response->lines, response->line_count);
     }
-
-    draw_surface(response->lines, response->line_count);
-
     delete request;
     delete response;
 }
@@ -116,11 +113,9 @@ void MainWindow::on_normalization_btn_clicked(){
 
     if (!response->done){
         show_error(response->message);
-        return;
+    } else {
+        draw_surface(response->lines, response->line_count);
     }
-
-    draw_surface(response->lines, response->line_count);
-
     delete request;
     delete response;
 }
@@ -171,9 +166,10 @@ void MainWindow::logic_rotation(Axis axis, int direction){
 
     if (!response->done){
         show_error(response->message);
-        return;
+    } else {
+        draw_surface(response->lines, response->line_count);
     }
-    draw_surface(response->lines, response->line_count);
+
     delete request;
     delete response;
 }
@@ -202,7 +198,7 @@ void MainWindow::logic_offset(Axis axis){
         show_error(response->message);
     } else {
         draw_surface(response->lines, response->line_count);
-        delete request;
-        delete response;
     }
+    delete request;
+    delete response;
 }

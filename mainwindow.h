@@ -46,12 +46,9 @@ private:
     QString fileName;
 
     void show_error(std::string message);
-
     void draw_surface(Line* lines, int count);
     void draw_line(QPainter* paint, Line* line);
-
     void logic_rotation(Axis axis, int direction = 1);
-
     void logic_offset(Axis axis);
 };
 #endif // MAINWINDOW_H

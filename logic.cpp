@@ -4,7 +4,7 @@
 #include "metrichandler.h"
 
 void split_string(string input, string* output);
-void set_points();
+void set_matrix();
 
 vector<string> *csv_data;
 
@@ -38,11 +38,10 @@ Response* execute(Request* request)
                 if (is_created){ // Очищение поля для отрисовки, если матрица уже создана
                     matrix.clear();
                 }
-                is_created = true;
-
-                set_points();
+                set_matrix();
                 matrix = normalize(matrix, matsize, matsize, normalization);
                 create_lines(matrix, lines, matsize, matsize);
+                is_created = true;
             }
             break;
 
@@ -121,7 +120,7 @@ void split_string(string input, string* output){
     output[i] = input;
 }
 
-void set_points(){
+void set_matrix(){
     /* Установка точек в 3D пространстве */
     string point_values[matsize];
     for (int i = 0; i < matsize; i++){
