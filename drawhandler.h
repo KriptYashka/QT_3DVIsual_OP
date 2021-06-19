@@ -2,6 +2,7 @@
 #define DRAWHANDLER_H
 
 #include <math.h>
+#include <vector>
 
 struct Point{
     float x;
@@ -30,7 +31,7 @@ void rotate(Point** points, int rows, int cols, Axis axis, float angle);
 void offset(Point** points, int rows, int cols, Axis axis, float offset);
 Point** create_matrix(int size);
 void free_points(Point** matrix, int rows);
-void set_point(Point* point, float x, float y, float z);
+void set_axis_point(Point* point, float x, float y, float z);
 void get_values(Point** points, float* x, float* y, float* z, int rows, int cols);
 void create_lines(Point** points, Line* lines, int rows, int cols);
 

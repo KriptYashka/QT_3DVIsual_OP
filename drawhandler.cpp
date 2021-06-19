@@ -1,5 +1,6 @@
 #include "drawhandler.h"
 #include "metrichandler.h"
+using namespace std;
 
 void rotateX(Point* point, float angle);
 void rotateY(Point* point, float angle);
@@ -23,19 +24,19 @@ void free_points(Point** matrix, int rows){
     }
 }
 
-void set_point(Point* point, float x, float y, float z){
+void set_axis_point(Point* point, float x, float y, float z){
     point->x = x;
     point->y = y;
     point->z = z;
 }
 
-void normalize(Point** points, int rows, int cols, float* normalization){
+vector<vector<Point>> normalize(vector<vector<Point>> matrix, int rows, int cols, float* normalization){
     int size = rows * cols;
     float *valuesX = new float[size];
     float *valuesY = new float[size];
     float *valuesZ = new float[size];
 
-    get_values(points, valuesX, valuesY, valuesZ, rows, cols); // Достаем текущие точки из общей Data
+    get_values(matrix, valuesX, valuesY, valuesZ, rows, cols); // Достаем текущие точки из общей Data
 
     float minX = findMin(valuesX, size), maxX = findMax(valuesX, size);
     float minY = findMin(valuesY, size), maxY = findMax(valuesY, size);
@@ -48,9 +49,9 @@ void normalize(Point** points, int rows, int cols, float* normalization){
 
     for (int i = 0; i < rows; i++){
         for (int j = 0; j < cols; j++){
-            points[i][j].x = a + ((points[i][j].x - minX) * cX);
-            points[i][j].y = a + ((points[i][j].y - minY) * (b - a) / (maxY - minY));
-            points[i][j].z = a + ((points[i][j].z - minZ) * (b - a) / (maxZ - minZ));
+            matrix[i][j].x = a + ((matrix[i][j].x - minX) * cX);
+            matrix[i][j].y = a + ((matrix[i][j].y - minY) * (b - a) / (maxY - minY));
+            matrix[i][j].z = a + ((matrix[i][j].z - minZ) * (b - a) / (maxZ - minZ));
         }
     }
 
@@ -129,25 +130,25 @@ void get_values(Point** points, float* x, float* y, float* z, int rows, int cols
     }
 }
 
-void create_lines(Point** points, Line* lines, int rows, int cols){
+void create_lines(vector<vector<Point>> matrix, Line* lines, int rows, int cols){
     /* Просчет линий, связывающих точек */
     int inx = 0;
     for (int i = 0; i < rows; i++){
         for (int j = 0; j < cols - 1; j++){
-            lines[inx].start.x = points[i][j].x;
-            lines[inx].start.y = points[i][j].y;
-            lines[inx].end.x = points[i][j + 1].x;
-            lines[inx].end.y = points[i][j + 1].y;
+            lines[inx].point_first.x = matrix[i][j].x;
+            lines[inx].point_first.y = matrix[i][j].y;
+            lines[inx].point_second.x = matrix[i][j + 1].x;
+            lines[inx].point_second.y = matrix[i][j + 1].y;
             inx++;
         }
     }
 
     for (int i = 0; i < rows - 1; i++){
         for (int j = 0; j < cols; j++){
-            lines[inx].start.x = points[i][j].x;
-            lines[inx].start.y = points[i][j].y;
-            lines[inx].end.x = points[i + 1][j].x;
-            lines[inx].end.y = points[i + 1][j].y;
+            lines[inx].point_first.x = matrix[i][j].x;
+            lines[inx].point_first.y = matrix[i][j].y;
+            lines[inx].point_second.x = matrix[i + 1][j].x;
+            lines[inx].point_second.y = matrix[i + 1][j].y;
             inx++;
         }
     }

@@ -41,7 +41,7 @@ void MainWindow::on_fileLoad_btn_clicked(){
 
 
     if (!response->done){
-        displayError(response->message);
+        show_error(response->message);
         return;
     }
 
@@ -59,50 +59,50 @@ void MainWindow::on_draw_btn_clicked(){
     Response* response = execute(request);
 
     if (!response->done){
-        displayError(response->message);
+        show_error(response->message);
         return;
     }
 
-    drawSurface(response->lines, response->line_count);
+    draw_surface(response->lines, response->line_count);
 
     delete request;
     delete response;
 }
 
 void MainWindow::on_rotate_x_btn_clicked(){
-    rotationHandler(Axis::X);
+    logic_rotation(Axis::X);
 }
 
 void MainWindow::on_rotate_y_btn_clicked(){
-    rotationHandler(Axis::Y);
+    logic_rotation(Axis::Y);
 }
 
 void MainWindow::on_rotate_z_btn_clicked(){
-    rotationHandler(Axis::Z);
+    logic_rotation(Axis::Z);
 }
 
 void MainWindow::on_rotate_x_back_btn_clicked(){
-    rotationHandler(Axis::X, -1);
+    logic_rotation(Axis::X, -1);
 }
 
 void MainWindow::on_rotate_y_back_btn_clicked(){
-    rotationHandler(Axis::Y, -1);
+    logic_rotation(Axis::Y, -1);
 }
 
 void MainWindow::on_rotate_z_back_btn_clicked(){
-    rotationHandler(Axis::Z, -1);
+    logic_rotation(Axis::Z, -1);
 }
 
 void MainWindow::on_offset_x_btn_clicked(){
-    offsetHandler(Axis::X);
+    logic_offset(Axis::X);
 }
 
 void MainWindow::on_offset_y_btn_clicked(){
-    offsetHandler(Axis::Y);
+    logic_offset(Axis::Y);
 }
 
 void MainWindow::on_offset_z_btn_clicked(){
-    offsetHandler(Axis::Z);
+    logic_offset(Axis::Z);
 }
 
 void MainWindow::on_normalization_btn_clicked(){
@@ -115,40 +115,39 @@ void MainWindow::on_normalization_btn_clicked(){
     Response* response = execute(request);
 
     if (!response->done){
-        displayError(response->message);
+        show_error(response->message);
         return;
     }
 
-    drawSurface(response->lines, response->line_count);
+    draw_surface(response->lines, response->line_count);
 
     delete request;
     delete response;
 }
 
-void MainWindow::drawSurface(Line* lines, int count){
+void MainWindow::draw_surface(Line* lines, int count){
     delete pix;
     pix = new QPixmap(450, 450);
     QPainter paint(pix);
     paint.fillRect(0, 0, 450, 450, QBrush(QColor(Qt::GlobalColor::white)));
     paint.setPen(Qt::blue);
 
-    for (int i = 0; i < count; i++)
-    {
-        drawLine(&paint, &(lines[i]));
+    for (int i = 0; i < count; i++){
+        draw_line(&paint, &(lines[i]));
     }
 
     ui->draw_label->setPixmap(*pix);
 }
 
-void MainWindow::drawLine(QPainter* paint, Line* line){
-    paint->drawLine(line->start.x, line->start.y, line->end.x, line->end.y);
+void MainWindow::draw_line(QPainter* paint, Line* line){
+    paint->drawLine(line->point_first.x, line->point_first.y, line->point_second.x, line->point_second.y);
 }
 
-void MainWindow::displayError(string message){
+void MainWindow::show_error(string message){
     QMessageBox::about(this, "Ошибка", QString::fromStdString(message));
 }
 
-void MainWindow::rotationHandler(Axis axis, int direction){
+void MainWindow::logic_rotation(Axis axis, int direction){
     Request* request = new Request;
 
     request->operation = Operations::ROTATE;
@@ -171,17 +170,15 @@ void MainWindow::rotationHandler(Axis axis, int direction){
     Response* response = execute(request);
 
     if (!response->done){
-        displayError(response->message);
+        show_error(response->message);
         return;
     }
-
-    drawSurface(response->lines, response->line_count);
-
+    draw_surface(response->lines, response->line_count);
     delete request;
     delete response;
 }
 
-void MainWindow::offsetHandler(Axis axis){
+void MainWindow::logic_offset(Axis axis){
     Request* request = new Request;
 
     request->operation = Operations::MOVE;
@@ -202,12 +199,10 @@ void MainWindow::offsetHandler(Axis axis){
     Response* response = execute(request);
 
     if (!response->done){
-        displayError(response->message);
-        return;
+        show_error(response->message);
+    } else {
+        draw_surface(response->lines, response->line_count);
+        delete request;
+        delete response;
     }
-
-    drawSurface(response->lines, response->line_count);
-
-    delete request;
-    delete response;
 }

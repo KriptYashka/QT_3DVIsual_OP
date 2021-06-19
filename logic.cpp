@@ -3,15 +3,15 @@
 #include "drawhandler.h"
 #include "metrichandler.h"
 
-void splitString(string input, string* output);
-void setPoints(Point** points, int rows, int cols);
+void split_string(string input, string* output);
+void set_points();
 
 vector<string> *csv_data;
 
 bool is_loaded = false, is_drawed = false, is_created = false;
 int matsize = -1;
 
-Point** points;
+vector<vector<Point>> matrix;
 Line* lines;
 
 float normalization[2] = {50, 400}; // Стандартная нормализация
@@ -34,6 +34,15 @@ Response* execute(Request* request)
             } else {
                 matsize = csv_data->size();
                 lines = new Line[(matsize - 1) * matsize * 2];
+
+                if (is_created){ // Очищение поля для отрисовки, если матрица уже создана
+                    matrix.clear();
+                }
+                is_created = true;
+
+                set_points();
+                normalize(points, matsize, matsize, normalization);
+                create_lines(points, lines, matsize, matsize);
             }
             break;
 
@@ -46,16 +55,6 @@ Response* execute(Request* request)
         case Operations::DRAW:
         /* Отрисовка точек */
             if (is_loaded){
-                if (is_created)  // Очищение поля для отрисовки, если матрица уже создана
-                    free_points(points, matsize);
-
-                points = create_matrix(matsize);
-                is_created = true;
-
-                setPoints(points, matsize, matsize);
-                normalize(points, matsize, matsize, normalization);
-                create_lines(points, lines, matsize, matsize);
-
                 response->lines = lines;
             } else {
                 response->done = false;
@@ -69,7 +68,6 @@ Response* execute(Request* request)
                 rotate(points, matsize, matsize, request->axis, request->rotation_angle);
                 normalize(points, matsize, matsize, normalization);
                 create_lines(points, lines, matsize, matsize);
-
                 response->lines = lines;
             } else {
                 response->done = false;
@@ -98,7 +96,6 @@ Response* execute(Request* request)
             if (is_loaded){
                 normalize(points, matsize, matsize, normalization);
                 create_lines(points, lines, matsize, matsize);
-
                 response->lines = lines;
             } else {
                 response->done = false;
@@ -111,12 +108,11 @@ Response* execute(Request* request)
     return response;
 }
 
-void splitString(string input, string* output){
+void split_string(string input, string* output){
     /* Распределение по элементам из файла */
     string delimiter = ",";
     int i = 0;
     size_t pos = 0;
-
     while ((pos = input.find(delimiter)) != string::npos){
         string str = input.substr(0, pos);
         output[i++] = str;
@@ -125,18 +121,16 @@ void splitString(string input, string* output){
     output[i] = input;
 }
 
-void setPoints(Point** points, int rows, int cols){
+void set_points(){
     /* Установка точек в 3D пространстве */
-    string arr[matsize];
-
-    for (int i = 0; i < rows; i++){
-        splitString((*csv_data)[i], arr);
-
-        for (int j = 0; j < cols; j++){
+    string point_values[matsize];
+    matrix.clear();
+    for (int i = 0; i < matsize; i++){
+        split_string((*csv_data)[i], point_values);
+        for (int j = 0; j < matsize; j++){
             Point point;
-            set_point(&point, (float)i, (float)j, (float)atof(arr[j].c_str()));
-
-            points[i][j] = point;
+            set_axis_point(&point, (float)i, (float)j, (float)atof(point_values[j].c_str()));
+            matrix.at(i).push_back(point);
         }
     }
 }

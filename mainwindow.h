@@ -45,13 +45,13 @@ private:
     QPixmap *pix = nullptr;
     QString fileName;
 
-    void displayError(std::string message);
+    void show_error(std::string message);
 
-    void drawSurface(Line* lines, int count);
-    void drawLine(QPainter* paint, Line* line);
+    void draw_surface(Line* lines, int count);
+    void draw_line(QPainter* paint, Line* line);
 
-    void rotationHandler(Axis axis, int direction = 1);
+    void logic_rotation(Axis axis, int direction = 1);
 
-    void offsetHandler(Axis axis);
+    void logic_offset(Axis axis);
 };
 #endif // MAINWINDOW_H
