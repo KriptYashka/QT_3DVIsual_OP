@@ -1,6 +1,6 @@
 #ifndef DRAWHANDLER_H
 #define DRAWHANDLER_H
-
+using namespace std;
 #include <math.h>
 #include <vector>
 
@@ -26,13 +26,11 @@ enum Axis{
     Z
 };
 
-void normalize(Point** points, int rows, int cols, float* normalization);
-void rotate(Point** points, int rows, int cols, Axis axis, float angle);
-void offset(Point** points, int rows, int cols, Axis axis, float offset);
-Point** create_matrix(int size);
-void free_points(Point** matrix, int rows);
+vector<vector<Point>> normalize(vector<vector<Point>> points, int rows, int cols, float* normalization);
+vector<vector<Point>> rotate(vector<vector<Point>> points, int rows, int cols, Axis axis, float angle);
+vector<vector<Point>> offset(vector<vector<Point>> points, int rows, int cols, Axis axis, float offset);
 void set_axis_point(Point* point, float x, float y, float z);
-void get_values(Point** points, float* x, float* y, float* z, int rows, int cols);
-void create_lines(Point** points, Line* lines, int rows, int cols);
+void get_values(vector<vector<Point>> points, float* x, float* y, float* z, int rows, int cols);
+void create_lines(vector<vector<Point>> points, Line* lines, int rows, int cols);
 
 #endif // DRAWHANDLER_H

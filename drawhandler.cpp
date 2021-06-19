@@ -2,27 +2,11 @@
 #include "metrichandler.h"
 using namespace std;
 
+double pi = 3.14159265;
+
 void rotateX(Point* point, float angle);
 void rotateY(Point* point, float angle);
 void rotateZ(Point* point, float angle);
-
-Point** create_matrix(int size){
-    Point** matrix = new Point* [size];
-    for (int i = 0; i < size; ++i){
-        matrix[i] = new Point[size];
-    }
-    return matrix;
-}
-
-void free_points(Point** matrix, int rows){
-    /* Очистить матрицу */
-    if (matrix != nullptr){
-        for (int i = 0; i < rows; i++){
-            delete [] matrix[i];
-        }
-    delete matrix;
-    }
-}
 
 void set_axis_point(Point* point, float x, float y, float z){
     point->x = x;
@@ -31,6 +15,8 @@ void set_axis_point(Point* point, float x, float y, float z){
 }
 
 vector<vector<Point>> normalize(vector<vector<Point>> matrix, int rows, int cols, float* normalization){
+    vector<vector<Point>> res;
+    res = matrix;
     int size = rows * cols;
     float *valuesX = new float[size];
     float *valuesY = new float[size];
@@ -42,90 +28,77 @@ vector<vector<Point>> normalize(vector<vector<Point>> matrix, int rows, int cols
     float minY = findMin(valuesY, size), maxY = findMax(valuesY, size);
     float minZ = findMin(valuesZ, size), maxZ = findMax(valuesZ, size);
 
-    float a = *normalization;
-    float b = *(normalization + 1);
+    float a = normalization[0], b = normalization[1];
 
     float cX = (b - a) / (maxX - minX);
 
-    for (int i = 0; i < rows; i++){
-        for (int j = 0; j < cols; j++){
-            matrix[i][j].x = a + ((matrix[i][j].x - minX) * cX);
-            matrix[i][j].y = a + ((matrix[i][j].y - minY) * (b - a) / (maxY - minY));
-            matrix[i][j].z = a + ((matrix[i][j].z - minZ) * (b - a) / (maxZ - minZ));
+    for (int i = 0; i < rows; ++i){
+        for (int j = 0; j < cols; ++j){
+            res[i][j].x = a + ((matrix[i][j].x - minX) * cX);
+            res[i][j].y = a + ((matrix[i][j].y - minY) * (b - a) / (maxY - minY));
+            res[i][j].z = a + ((matrix[i][j].z - minZ) * (b - a) / (maxZ - minZ));
         }
     }
 
     delete [] valuesX;
     delete [] valuesY;
     delete [] valuesZ;
+
+    return res;
 }
 
-void rotate(Point** points, int rows, int cols, Axis axis, float angle){
-    for (int i = 0; i < rows; i++){
-        for (int j = 0; j < cols; j++){
+vector<vector<Point>> rotate(vector<vector<Point>> matrix, int rows, int cols, Axis axis, float angle){
+    float degrees = angle / 180.0 * pi;
+    for (int i = 0; i < rows; ++i){
+        for (int j = 0; j < cols; ++j){
             switch (axis){
                 case Axis::X:
-                    rotateX(&points[i][j], angle);
+                    matrix[i][j].y = matrix[i][j].y * cos(degrees) - matrix[i][j].z * sin(degrees);
+                    matrix[i][j].z = matrix[i][j].z * cos(degrees) + matrix[i][j].y * sin(degrees);
                     break;
 
                 case Axis::Y:
-                    rotateY(&points[i][j], angle);
+                    matrix[i][j].x = matrix[i][j].x * cos(degrees) + matrix[i][j].z * sin(degrees);
+                    matrix[i][j].z = matrix[i][j].z * cos(degrees) - matrix[i][j].x * sin(degrees);
                     break;
 
                 case Axis::Z:
-                    rotateZ(&points[i][j], angle);
+                    matrix[i][j].x = matrix[i][j].x * cos(degrees) - matrix[i][j].y * sin(degrees);
+                    matrix[i][j].y = matrix[i][j].y * cos(degrees) + matrix[i][j].x * sin(degrees);
                     break;
             }
         }
     }
-}
-double pi = 3.14159265;
-void rotateX(Point* point, float degrees){
-    float angle = degrees / 180.0 * pi;
-    point->y = point->y * cos(angle) - point->z * sin(angle);
-    point->z = point->z * cos(angle) + point->y * sin(angle);
+    return matrix;
 }
 
-void rotateY(Point* point, float degrees){
-    float angle = degrees / 180.0 * pi;
-    point->x = point->x * cos(angle) + point->z * sin(angle);
-    point->z = point->z * cos(angle) - point->x * sin(angle);
-}
-
-void rotateZ(Point* point, float degrees){
-    float angle = degrees / 180.0 * pi;
-    point->x = point->x * cos(angle) - point->y * sin(angle);
-    point->y = point->y * cos(angle) + point->x * sin(angle);
-}
-
-void offset(Point** points, int rows, int cols, Axis axis, float offset){
-    for (int i = 0; i < rows; i++){
-        for (int j = 0; j < cols; j++){
+vector<vector<Point>> offset(vector<vector<Point>> matrix, int rows, int cols, Axis axis, float offset){
+    for (int i = 0; i < rows; ++i){
+        for (int j = 0; j < cols; ++j){
             switch (axis){
                 case Axis::X:
-                    points[i][j].x += offset;
+                    matrix[i][j].x += offset;
                     break;
 
                 case Axis::Y:
-                    points[i][j].y += offset;
+                    matrix[i][j].y += offset;
                     break;
 
                 case Axis::Z:
-                    points[i][j].z += offset;
+                    matrix[i][j].z += offset;
                     break;
             }
         }
     }
+    return matrix;
 }
 
-void get_values(Point** points, float* x, float* y, float* z, int rows, int cols){
-    int inx = 0;
+void get_values(vector<vector<Point>> points, float* arr_x, float* arr_y, float* arr_z, int rows, int cols){
     for (int i = 0; i < rows; i++){
         for (int j = 0; j < cols; j++){
-            x[inx] = points[i][j].x;
-            y[inx] = points[i][j].y;
-            z[inx] = points[i][j].z;
-            inx++;
+            arr_x[i * rows + j] = points[i][j].x;
+            arr_y[i * rows + j] = points[i][j].y;
+            arr_z[i * rows + j] = points[i][j].z;
         }
     }
 }

@@ -30,7 +30,7 @@ Response* execute(Request* request)
             is_loaded = csv_data->size() != 0;
             if (!is_loaded){
                 response->done = false;
-                response->message = "Не удалось загрузить данные";
+                response->message = "Data error";
             } else {
                 matsize = csv_data->size();
                 lines = new Line[(matsize - 1) * matsize * 2];
@@ -41,14 +41,14 @@ Response* execute(Request* request)
                 is_created = true;
 
                 set_points();
-                normalize(points, matsize, matsize, normalization);
-                create_lines(points, lines, matsize, matsize);
+                matrix = normalize(matrix, matsize, matsize, normalization);
+                create_lines(matrix, lines, matsize, matsize);
             }
             break;
 
         case Operations::CLEAR:
         /* Удаление матрицы */
-            free_points(points, matsize);
+            matrix.clear();
             delete [] lines;
             break;
 
@@ -58,33 +58,33 @@ Response* execute(Request* request)
                 response->lines = lines;
             } else {
                 response->done = false;
-                response->message = "Данные не загружены";
+                response->message = "Data error";
             }
             break;
 
         case Operations::ROTATE:
         /* Поворот точек по одной из осей */
             if (is_loaded){
-                rotate(points, matsize, matsize, request->axis, request->rotation_angle);
-                normalize(points, matsize, matsize, normalization);
-                create_lines(points, lines, matsize, matsize);
+                matrix = rotate(matrix, matsize, matsize, request->axis, request->rotation_angle);
+                matrix = normalize(matrix, matsize, matsize, normalization);
+                create_lines(matrix, lines, matsize, matsize);
                 response->lines = lines;
             } else {
                 response->done = false;
-                response->message = "Данные не загружены";
+                response->message = "Data error";
             }
             break;
 
         case Operations::MOVE:
         /* Перемещение по поверхности */
             if (is_loaded){
-                offset(points, matsize, matsize, request->axis, request->offset_value);
-                create_lines(points, lines, matsize, matsize);
+                matrix = offset(matrix, matsize, matsize, request->axis, request->offset_value);
+                create_lines(matrix, lines, matsize, matsize);
 
                 response->lines = lines;
             } else {
                 response->done = false;
-                response->message = "Данные не загружены";
+                response->message = "Data error";
             }
             break;
 
@@ -94,12 +94,12 @@ Response* execute(Request* request)
             normalization[1] = request->normalization[1];
 
             if (is_loaded){
-                normalize(points, matsize, matsize, normalization);
-                create_lines(points, lines, matsize, matsize);
+                matrix = normalize(matrix, matsize, matsize, normalization);
+                create_lines(matrix, lines, matsize, matsize);
                 response->lines = lines;
             } else {
                 response->done = false;
-                response->message = "Значения нормализации установлены. Данные не загружены";
+                response->message = "Data error";
             }
             break;
     }
@@ -124,13 +124,14 @@ void split_string(string input, string* output){
 void set_points(){
     /* Установка точек в 3D пространстве */
     string point_values[matsize];
-    matrix.clear();
     for (int i = 0; i < matsize; i++){
         split_string((*csv_data)[i], point_values);
+        vector<Point> line;
         for (int j = 0; j < matsize; j++){
             Point point;
             set_axis_point(&point, (float)i, (float)j, (float)atof(point_values[j].c_str()));
-            matrix.at(i).push_back(point);
+            line.push_back(point);
         }
+        matrix.push_back(line);
     }
 }
