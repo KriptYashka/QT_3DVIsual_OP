@@ -20,9 +20,9 @@ vector<vector<Point>> normalize(vector<vector<Point>> matrix, int rows, int cols
 
     get_values(matrix, valuesX, valuesY, valuesZ, rows, cols); // Достаем текущие точки из общей Data
 
-    float minX = findMin(valuesX, size), maxX = findMax(valuesX, size);
-    float minY = findMin(valuesY, size), maxY = findMax(valuesY, size);
-    float minZ = findMin(valuesZ, size), maxZ = findMax(valuesZ, size);
+    float minX = find_min(valuesX, size), maxX = find_max(valuesX, size);
+    float minY = find_min(valuesY, size), maxY = find_max(valuesY, size);
+    float minZ = find_min(valuesZ, size), maxZ = find_max(valuesZ, size);
 
     float a = normalization[0], b = normalization[1];
 
