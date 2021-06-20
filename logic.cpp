@@ -42,6 +42,7 @@ Response* execute(Request* request)
 
                 set_points();
                 matrix = normalize(matrix, matsize, matsize, normalization);
+                normalize(matrix, matsize, matsize, normalization);
                 create_lines(matrix, lines, matsize, matsize);
             }
             break;
