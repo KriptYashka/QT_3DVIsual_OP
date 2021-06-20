@@ -90,30 +90,30 @@ vector<vector<Point>> offset(vector<vector<Point>> matrix, int rows, int cols, A
 void get_values(vector<vector<Point>> points, float* arr_x, float* arr_y, float* arr_z, int rows, int cols){
     for (int i = 0; i < rows; i++){
         for (int j = 0; j < cols; j++){
-            arr_x[i * rows + j] = points[i][j].x;
-            arr_y[i * rows + j] = points[i][j].y;
-            arr_z[i * rows + j] = points[i][j].z;
+            arr_x[i * cols + j] = points[i][j].x;
+            arr_y[i * cols + j] = points[i][j].y;
+            arr_z[i * cols + j] = points[i][j].z;
         }
     }
 }
 
 void create_lines(vector<vector<Point>> matrix, Line* lines, int rows, int cols){
     /* Просчет линий, связывающих точек */
+    int index = 0;
     for (int i = 0; i < rows; i++){
         for (int j = 0; j < cols - 1; j++){
-            lines[i * rows + j].point_first.x = matrix[i][j].x;
-            lines[i * rows + j].point_first.y = matrix[i][j].y;
-            lines[i * rows + j].point_second.x = matrix[i][j + 1].x;
-            lines[i * rows + j].point_second.y = matrix[i][j + 1].y;
+            lines[index].point_first.x = matrix[i][j].x;
+            lines[index].point_first.y = matrix[i][j].y;
+            lines[index].point_second.x = matrix[i][j + 1].x;
+            lines[index++].point_second.y = matrix[i][j + 1].y;
         }
     }
-
     for (int i = 0; i < rows - 1; i++){
         for (int j = 0; j < cols; j++){
-            lines[i * rows + j].point_first.x = matrix[i][j].x;
-            lines[i * rows + j].point_first.y = matrix[i][j].y;
-            lines[i * rows + j].point_second.x = matrix[i + 1][j].x;
-            lines[i * rows + j].point_second.y = matrix[i + 1][j].y;
+            lines[index].point_first.x = matrix[i][j].x;
+            lines[index].point_first.y = matrix[i][j].y;
+            lines[index].point_second.x = matrix[i + 1][j].x;
+            lines[index++].point_second.y = matrix[i + 1][j].y;
         }
     }
 }
